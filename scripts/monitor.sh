@@ -53,16 +53,30 @@ if [ -n "$JVM_PID" ]; then
     JVM_THREADS=$(cat /proc/$JVM_PID/status 2>/dev/null | awk '/Threads:/ {print $2}')
     [ -z "$JVM_THREADS" ] && JVM_THREADS=0
 
-    # Metric 2: Look for native JDK diagnostics binaries to extract precise Heap Usage
+    # Cron's PATH usually lacks the JDK; use the bin dir of the running java binary.
+    JAVA_BIN_DIR=$(dirname "$(readlink -f /proc/$JVM_PID/exe 2>/dev/null)")
+    PATH="$JAVA_BIN_DIR:$PATH"
+
+    # Metric 2: Heap used in MB, trying jcmd, then jstat, then process RSS.
+    JVM_HEAP_MB=""
     if command -v jcmd >/dev/null 2>&1; then
-        # jcmd tool extraction
-        JVM_HEAP_BYTES=$(jcmd "$JVM_PID" GC.heap_info 2>/dev/null | awk '/garbage-first heap|def new generation|eden space/ {for(i=1;i<=NF;i++) if($i~/[0-aligned|used]/) {print $(i+1); exit}}' | tr -d 'KMG,')
-        JVM_HEAP_MB=$(awk "BEGIN {printf \"%.2f\", ${JVM_HEAP_BYTES:-0} / 1024 / 1024}")
-    elif command -v jstat >/dev/null 2>&1; then
-        # jstat tool backup extraction (Adds up EU + OU capacities in KB)
-        JVM_HEAP_MB=$(jstat -gc "$JVM_PID" 1 1 2>/dev/null | awk 'NR==2 {printf "%.2f", ($6+$8)/1024}')
-    else
-        # OS Level Backup: Read Resident Set Size (RSS) directly from Linux memory states
+        # Sums every "used <n>K|M|G" on heap/generation lines (G1, Parallel, Serial); skips Metaspace.
+        JVM_HEAP_MB=$(jcmd "$JVM_PID" GC.heap_info 2>/dev/null | awk '
+            /Metaspace|class space/ {next}
+            match($0, /used [0-9]+[KMG]/) {
+                s = substr($0, RSTART + 5, RLENGTH - 5)
+                u = substr(s, length(s)); v = substr(s, 1, length(s) - 1)
+                if (u == "K") v = v / 1024; else if (u == "G") v = v * 1024
+                sum += v
+            }
+            END { printf "%.2f", sum }')
+    fi
+    if { [ -z "$JVM_HEAP_MB" ] || [ "$JVM_HEAP_MB" = "0.00" ]; } && command -v jstat >/dev/null 2>&1; then
+        # jstat -gc columns (KB): S0U=$3 S1U=$4 EU=$6 OU=$8
+        JVM_HEAP_MB=$(jstat -gc "$JVM_PID" 1 1 2>/dev/null | awk 'NR==2 {printf "%.2f", ($3+$4+$6+$8)/1024}')
+    fi
+    if [ -z "$JVM_HEAP_MB" ] || [ "$JVM_HEAP_MB" = "0.00" ]; then
+        # OS-level fallback: resident set size of the process (not heap-only).
         JVM_RSS_KB=$(awk '/VmRSS:/ {print $2}' /proc/$JVM_PID/status 2>/dev/null)
         JVM_HEAP_MB=$(awk "BEGIN {printf \"%.2f\", ${JVM_RSS_KB:-0} / 1024}")
     fi
