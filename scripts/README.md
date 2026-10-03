@@ -21,7 +21,7 @@ wget -qO- https://your-host/path/install.sh | sh
 Or download and inspect it first:
 
 ```sh
-wget -O install.sh https://your-host/path/install.sh
+wget -O install.sh https://raw.githubusercontent.com/paulosales/quick-machine-monitor/refs/heads/master/scripts/install.sh
 sh install.sh
 ```
 
