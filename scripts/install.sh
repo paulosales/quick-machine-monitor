@@ -17,7 +17,7 @@ INSTALL_DIR="${INSTALL_DIR:-/usr/local/bin}"
 TARGET="$INSTALL_DIR/monitor.sh"
 CONF_FILE=/etc/quick-monitor.conf
 CRON_FILE=/etc/crontabs/root
-MONITOR_URL="${MONITOR_URL:https://raw.githubusercontent.com/paulosales/quick-machine-monitor/refs/heads/master/scripts/monitor.sh}"
+MONITOR_URL=https://raw.githubusercontent.com/paulosales/quick-machine-monitor/refs/heads/master/scripts/monitor.sh
 
 # Load previous values (if any) as defaults.
 env_url="${MONITOR_URL:-}"
