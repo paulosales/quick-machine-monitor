@@ -79,6 +79,7 @@ done
 
 apk update >/dev/null
 apk add --no-cache wget mariadb-client procps >/dev/null
+apk add openrc
 
 mkdir -p "$INSTALL_DIR"
 wget -q -O "$TARGET.tmp" "$MONITOR_URL"
@@ -123,6 +124,8 @@ if command -v rc-service >/dev/null 2>&1; then
 else
     echo "OpenRC not found (container?). Start cron manually with: crond -b" >&2
 fi
+
+pgrep crond >/dev/null || crond -b
 
 echo "Installed $TARGET (interval: $INTERVAL). Configuration: $CONF_FILE"
 echo "Test it with: $TARGET"
