@@ -15,7 +15,7 @@
 Run as root on the Alpine machine, in an interactive terminal:
 
 ```sh
-wget -qO- https://your-host/path/install.sh | sh
+wget -qO- https://raw.githubusercontent.com/paulosales/quick-machine-monitor/refs/heads/master/scripts/install.sh | sh
 ```
 
 Or download and inspect it first:
