@@ -26,6 +26,8 @@ label { display: flex; flex-direction: column; gap: .25rem; font-size: .85rem; }
 .grid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 480px), 1fr)); }
 
 .chart header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
+.chart .actions { display: flex; gap: .4rem; }
+.chart.expanded { grid-column: 1 / -1; }
 .unit { color: #6b7280; font-weight: normal; }
 .help { width: 1.7rem; height: 1.7rem; padding: 0; border-radius: 50%; font-weight: bold; }
 .description { background: #eff6ff; border-left: 3px solid #2563eb; padding: .5rem .75rem; margin-bottom: .5rem; font-size: .9rem; }
