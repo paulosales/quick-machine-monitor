@@ -32,7 +32,7 @@ The installer asks for:
 | URL to download `monitor.sh` | Can be preset with `MONITOR_URL=... sh install.sh` |
 | DB host, user, password, name | Name defaults to `health_monitor`; password is not echoed |
 | Service name | Value stored in the `service_name` column |
-| Execution interval | every 20 seconds, every minute, every 10 minutes or every hour |
+| Execution interval | every 20 seconds, every minute, every 2, 3, 5, 10 or 15 minutes, or every hour |
 
 It then installs `wget`, `mariadb-client` and `procps`, installs `monitor.sh` in `/usr/local/bin` (override with `INSTALL_DIR`), writes the settings to `/etc/quick-monitor.conf` (mode 600, root only), replaces the cron entries in `/etc/crontabs/root` and enables `crond`. The 20 second interval uses three staggered cron entries because cron's minimum granularity is one minute.
 

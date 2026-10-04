@@ -61,10 +61,14 @@ cat >/dev/tty <<'EOF'
 Execution interval:
   1) every 20 seconds
   2) every minute
-  3) every 10 minutes
-  4) every hour
+  3) every 2 minutes
+  4) every 3 minutes
+  5) every 5 minutes
+  6) every 10 minutes
+  7) every 15 minutes
+  8) every hour
 EOF
-case "$INTERVAL" in 20s) def=1 ;; 1m) def=2 ;; 10m) def=3 ;; 1h) def=4 ;; *) def=2 ;; esac
+case "$INTERVAL" in 20s) def=1 ;; 1m) def=2 ;; 2m) def=3 ;; 3m) def=4 ;; 5m) def=5 ;; 10m) def=6 ;; 15m) def=7 ;; 1h) def=8 ;; *) def=2 ;; esac
 while :; do
     printf 'Choose [%s]: ' "$def" >/dev/tty
     read -r choice </dev/tty || choice=
@@ -72,8 +76,12 @@ while :; do
     case "$choice" in
         1) INTERVAL=20s; break ;;
         2) INTERVAL=1m; break ;;
-        3) INTERVAL=10m; break ;;
-        4) INTERVAL=1h; break ;;
+        3) INTERVAL=2m; break ;;
+        4) INTERVAL=3m; break ;;
+        5) INTERVAL=5m; break ;;
+        6) INTERVAL=10m; break ;;
+        7) INTERVAL=15m; break ;;
+        8) INTERVAL=1h; break ;;
     esac
 done
 
@@ -113,7 +121,11 @@ case "$INTERVAL" in
         echo "* * * * * sleep 40; $TARGET >/dev/null 2>&1" >> "$CRON_FILE.tmp"
         ;;
     1m)  echo "* * * * * $TARGET >/dev/null 2>&1" >> "$CRON_FILE.tmp" ;;
+    2m)  echo "*/2 * * * * $TARGET >/dev/null 2>&1" >> "$CRON_FILE.tmp" ;;
+    3m)  echo "*/3 * * * * $TARGET >/dev/null 2>&1" >> "$CRON_FILE.tmp" ;;
+    5m)  echo "*/5 * * * * $TARGET >/dev/null 2>&1" >> "$CRON_FILE.tmp" ;;
     10m) echo "*/10 * * * * $TARGET >/dev/null 2>&1" >> "$CRON_FILE.tmp" ;;
+    15m) echo "*/15 * * * * $TARGET >/dev/null 2>&1" >> "$CRON_FILE.tmp" ;;
     1h)  echo "0 * * * * $TARGET >/dev/null 2>&1" >> "$CRON_FILE.tmp" ;;
 esac
 mv "$CRON_FILE.tmp" "$CRON_FILE"
